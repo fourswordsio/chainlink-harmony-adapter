@@ -2,8 +2,9 @@ const { Harmony } = require("@harmony-js/core");
 const {
   formatBytes32String,
   AbiCoder,
+  AbiOutput,
 } = require("@harmony-js/contract");
-const { ChainID, ChainType } = require("@harmony-js/utils");
+const { ChainID, ChainType, hexToNumber } = require("@harmony-js/utils");
 const hmy = new Harmony(process.env.URL, {
   chainType: ChainType.Harmony,
   chainId: ChainID.HmyTestnet,
@@ -38,36 +39,41 @@ const createRequest = (input, callback) => {
   const transactionData =
     functionId.substring(0, 10) + encode(dataType, dataToSend);
 
-  const transaction = hmy.transactions.newTx({
-    to: externalAddress,
-    data: transactionData,
-    value: 0,
-    shardID: 0,
-    gasLimit: '25000',
-    gasPrice: new hmy.utils.Unit('1').asGwei().toWei(),
-  });
-
-  hmy.wallet.signTransaction(transaction).then((signedTxn) => {
-    let sendTransactionPromise = hmy.blockchain.sendTransaction(signedTxn);
-
-    sendTransactionPromise
-      .then((tx) => {
-        callback(200, {
-          jobRunID: input.id,
-          data: tx,
-          statusCode: 200,
-        });
-      })
-      .catch((err) => {
-        console.log("Error!", err);
-        callback(400, {
-          jobRunID: input.id,
-          status: "errored",
-          error: err,
-          statusCode: 400,
-        });
+  hmy.blockchain
+    .estimateGas({
+      to: externalAddress,
+      data: transactionData,
+    })
+    .then((response) => {
+      const transaction = hmy.transactions.newTx({
+        to: externalAddress,
+        data: transactionData,
+        gasLimit: hexToNumber(response.result),
+        gasPrice: new hmy.utils.Unit("1").asGwei().toWei(),
       });
-  });
+      hmy.wallet.signTransaction(transaction).then((signedTxn) => {
+        let sendTransactionPromise = hmy.blockchain.sendTransaction(signedTxn);
+        sendTransactionPromise
+          .then((tx) => {
+            // transaction.txConfirm(tx.result).then((result) => {
+              callback(200, {
+                jobRunID: input.id,
+                data: tx,
+                statusCode: 200,
+              });
+            // });
+          })
+          .catch((err) => {
+            console.log("Error!", err);
+            callback(400, {
+              jobRunID: input.id,
+              status: "errored",
+              error: err,
+              statusCode: 400,
+            });
+          });
+      });
+    });
 };
 
 exports.gcpservice = (req, res) => {
