@@ -11,8 +11,8 @@ describe('createRequest', () => {
     const req = {
       id: jobID,
       data: {
-        exAddr: process.env.CONTRACT_ADDRESS,
-        funcId: uint256FuncId,
+        address: process.env.CONTRACT_ADDRESS,
+        functionSelector: uint256FuncId,
         result: '54'
       }
     };
@@ -31,9 +31,9 @@ describe('createRequest', () => {
     const req = {
       id: jobID,
       data: {
-        exAddr: process.env.CONTRACT_ADDRESS,
+        address: process.env.CONTRACT_ADDRESS,
         dataType: 'uint256',
-        funcId: uint256FuncId,
+        functionSelector: uint256FuncId,
         result: 42
       }
     };
@@ -52,9 +52,9 @@ describe('createRequest', () => {
     const req = {
       id: jobID,
       data: {
-        exAddr: process.env.CONTRACT_ADDRESS,
+        address: process.env.CONTRACT_ADDRESS,
         dataType: 'bytes32',
-        funcId: bytes32FuncId,
+        functionSelector: bytes32FuncId,
         result: 'hello there'
       }
     };
@@ -73,9 +73,9 @@ describe('createRequest', () => {
     const req = {
       id: jobID,
       data: {
-        exAddr: process.env.CONTRACT_ADDRESS,
+        address: process.env.CONTRACT_ADDRESS,
         dataType: 'int256',
-        funcId: int256FuncId,
+        functionSelector: int256FuncId,
         result: -42
       }
     };
