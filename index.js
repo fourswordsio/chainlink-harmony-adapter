@@ -1,7 +1,12 @@
 const { Harmony } = require("@harmony-js/core");
 const { formatBytes32String, AbiCoder } = require("@harmony-js/contract");
 const { ChainID, ChainType, strip0x } = require("@harmony-js/utils");
-const hmy = new Harmony(process.env.URL, {
+
+let url = "https://api.s0.b.hmny.io";
+if (process.env.URL) {
+  url = process.env.URL;
+}
+const hmy = new Harmony(url, {
   chainType: ChainType.Harmony,
   chainId: ChainID.HmyTestnet,
 });
